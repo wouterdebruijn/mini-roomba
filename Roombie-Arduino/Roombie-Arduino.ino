@@ -56,8 +56,8 @@ void setup() {
 
   pinMode(BRUSHES_EEP, OUTPUT);
 
-  Serial.begin(115200);
-  Serial.println("");
+  Serial1.begin(115200);
+  Serial1.println("Hello from Arduino");
 
   bufferPos = 0;
 
@@ -103,7 +103,7 @@ void loop() {
     analogWrite(MOTOR_R_INT1, 128);
     digitalWrite(MOTOR_R_INT2, LOW);
 
-    Serial.println("Turn Left");
+    Serial1.println("Turn Left");
 
     cmd_turn = false;
     lockout = 100;
@@ -122,7 +122,7 @@ void loop() {
 
       lockout = 250;
 
-      Serial.println("EMERGENCY STOP");
+      Serial1.println("EMERGENCY STOP");
     } else if (leftIR > IR_THRESHOLD && rightIR > IR_THRESHOLD) {
       // Forward
       // Forward left motor
@@ -144,7 +144,7 @@ void loop() {
       analogWrite(MOTOR_R_INT1, MAX_SPEED);
       digitalWrite(MOTOR_R_INT2, LOW);
 
-      Serial.println("Turn Left");
+      Serial1.println("Turn Left");
 
       lockout = 80;
     } else if (leftIR <= IR_THRESHOLD && rightIR > IR_THRESHOLD) {
@@ -157,7 +157,7 @@ void loop() {
       digitalWrite(MOTOR_R_INT1, LOW);
       analogWrite(MOTOR_R_INT2, MAX_SPEED);
 
-      Serial.println("Turn Right");
+      Serial1.println("Turn Right");
 
       lockout = 80;
     } else if (leftIR <= IR_THRESHOLD && rightIR <= IR_THRESHOLD) {
@@ -188,9 +188,9 @@ void loop() {
     delay(10);
     lockout--;
 
-    if (Serial.available() > 0 && bufferPos < BUFFER_SIZE) {
+    if (Serial1.available() > 0 && bufferPos < BUFFER_SIZE) {
       // Read one byte to buffer
-      buffer[bufferPos] = Serial.read();
+      buffer[bufferPos] = Serial1.read();
       // Add length to buffer
       bufferPos++;
     } else if (bufferPos > 0) {
@@ -205,8 +205,8 @@ void loop() {
         // cmd:2, toggle auto
         cmd_auto = !cmd_auto;
 
-        Serial.print("Toggled auto to ");
-        Serial.println(cmd_auto);
+        Serial1.print("Toggled auto to ");
+        Serial1.println(cmd_auto);
 
         bufferPos = 0;
       }
@@ -215,8 +215,8 @@ void loop() {
         // cmd:2, toggle auto
         cmd_brushes = !cmd_brushes;
 
-        Serial.print("Toggled cmd_brushes to ");
-        Serial.println(cmd_brushes);
+        Serial1.print("Toggled cmd_brushes to ");
+        Serial1.println(cmd_brushes);
 
         digitalWrite(BRUSHES_EEP, cmd_brushes);
 
@@ -224,9 +224,9 @@ void loop() {
       }
     }
 
-    Serial.print("RL:");
-    Serial.print(rearLeftIR);
-    Serial.print(",RR:");
-    Serial.println(rearRightIR);
+    Serial1.print("RL:");
+    Serial1.print(rearLeftIR);
+    Serial1.print(",RR:");
+    Serial1.println(rearRightIR);
   }
 }
