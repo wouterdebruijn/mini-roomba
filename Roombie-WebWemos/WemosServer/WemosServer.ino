@@ -66,12 +66,16 @@ void loop(void) {
   server.handleClient();
 
   if (arduinoSerial.available() > 0) {
-    if (bufferPos >= 1008) {
-      // Shift buffer by 16
-      for (int i=16; i < 1024; i++) {
-        serialBuffer[i-16] = serialBuffer[i];
+    if (bufferPos >= 1024) {
+      bufferPos = 768;
+
+      for (int i=256; i < 1024; i++) {
+        serialBuffer[i-256] = serialBuffer[i];
       }
-      bufferPos = 1007;
+
+      for (int i=768; i < 1024; i++) {
+        serialBuffer[i] = 0;
+      }
     }
 
     // Write new Serial value
