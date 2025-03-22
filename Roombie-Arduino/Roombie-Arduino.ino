@@ -13,19 +13,20 @@
 
 #define MAX_SPEED 255
 
-#define IRID 0b00010000
-
 Motor leftDrive(9, 10, 2);
 Motor rightDrive(5, 6, 2);
 
-CliffSensor sensorFrontLeft(A2, 15, IRID | 0);
-CliffSensor sensorFrontRight(A3, 16, IRID | 1);
+CliffSensor sensorFrontLeft(A2, 15, 0);
+CliffSensor sensorFrontRight(A3, 16, 1);
 
-CliffSensor sensorRearLeft(A0, 7, IRID | 2);
-CliffSensor sensorRearRight(A1, 14, IRID | 3);
+CliffSensor sensorRearLeft(A0, 7, 2);
+CliffSensor sensorRearRight(A1, 14, 3);
 
 CliffSensor *sensors[] = {
     &sensorFrontLeft,
+    &sensorFrontRight,
+    &sensorRearLeft,
+    &sensorRearRight,
     nullptr};
 
 Web wemos(&Serial1, sensors);
@@ -42,6 +43,7 @@ void setup()
   wemos.serial->begin(19200);
 
   digitalWrite(BRUSHES_EEP, LOW);
+  leftDrive.state(true);
   lockout = 0;
 }
 
@@ -128,11 +130,11 @@ void loop()
     delay(10);
 
     wemos.handle_command();
+    wemos.sendMetrics();
 
     digitalWrite(BRUSHES_EEP, wemos.brushesEnabled());
 
     lockout--;
   }
 
-  wemos.sendMetrics();
 }

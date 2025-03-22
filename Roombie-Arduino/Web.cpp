@@ -39,6 +39,10 @@ void Web::sendMetrics() {
   for (int i = 0; sensors[i] != nullptr; i++) {
     CliffSensor *sensor = sensors[i];
 
+    if (!sensor->hasChanged()) {
+      continue;
+    }
+
     uint16_t value = sensor->getValue();
 
     // Startbit1, Startbit2, AttributeID, 16bit_buffer_part1, 16bit_buffer_part2
