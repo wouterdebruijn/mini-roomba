@@ -6,6 +6,7 @@
 #include <SoftwareSerial.h>
 
 #include "Secrets.h"
+#include "Sensor.h"
 
 #define ARDUINO_RX D4
 #define ARDUINO_TX D2
@@ -24,10 +25,17 @@ const int led = 13;
 char serialBuffer[1024] = {1};
 int bufferPos = 0;
 
+
+Sensor sensors[] = {
+  Sensor(0x00), // FrontLeft
+  Sensor(0x01), // FrontRight
+  Sensor(0x02), // BackLeft
+  Sensor(0x03) // BackRight
+};
+
+
 void handleRoot()
 {
-  String text = "<html><pre>";
-
   // Search for stop start indicator
   for (int i=0; i<1022; i++) {
     if(serialBuffer[i] == 128 && serialBuffer[i+1] == 0){
@@ -36,17 +44,16 @@ void handleRoot()
       uint16_t value1 = serialBuffer[i+1];
       uint8_t value2 = serialBuffer[i+2];
 
-      text += "id:";
-      text += String(int(serialBuffer[i]));
-      text += "val:";
-      text += String(value1 << 8 | value2);
-      text += "\n";
+      for (uint8_t j=0; j<sizeof(sensors); j++) {
+        if (sensors[j].getId() == int(serialBuffer[i])) {
+          sensors[j].setValue(value1 << 8 | value2);
+          break;
+        }
+      }
     }
   }
 
-  text += "</pre><form action=\"auto\"><input type=\"submit\" value=\"auto toggle\">Button</input></form></html>";
-
-  server.send(200, "text/html", text);
+  server.send(200, "text/html", sensors[0].asJson()+sensors[1].asJson());
 }
 
 void setup(void)
@@ -75,7 +82,7 @@ void setup(void)
   server.on("/", handleRoot);
 
   server.on("/auto", []() {
-    arduinoSerial.print("c:3");
+    arduinoSerial.print("c:2");
     server.send(200, "text/plain", "this works as well"); });
 
   server.begin();
