@@ -9,7 +9,7 @@
 
 #define ARDUINO_RX D4
 #define ARDUINO_TX D2
-#define BAUD_RATE 115200
+#define BAUD_RATE 19200
 
 const char* ssid = STASSID;
 const char* password = STAPSK;
