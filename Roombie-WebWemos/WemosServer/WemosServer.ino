@@ -55,7 +55,7 @@ void setup(void) {
 
   server.on("/auto", []() {
     // Example execute command on Arduino.
-    arduinoSerial.println("c:3");
+    arduinoSerial.print("c:3");
     server.send(200, "text/plain", "this works as well");
   });
 
