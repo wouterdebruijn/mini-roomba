@@ -65,29 +65,15 @@ void setup(void)
     arduinoSerial.print("c:2");
     server.send(200, "text/plain", "this works as well"); });
 
-  server.on("/happiness", HTTP_POST, []()
+  server.on("/wiper", []()
             {
-    if (server.hasArg("happiness"))
-    {
-      // Get the happiness value from the POST request
-      uint8_t happiness = server.arg("happiness").toInt();
-
-      // Call the set method to update the LED color
-      eyes.set(happiness);
-
-      // Respond with a success message
-      server.send(200, "text/plain", "Happiness value received and LEDs updated.");
-    }
-    else
-    {
-      // If the happiness parameter is not in the request
-      server.send(400, "text/plain", "Missing happiness value.");
-    } });
+    arduinoSerial.print("c:3");
+    server.send(200, "text/plain", "this works as well"); });
 
   server.begin();
 }
 
-#define BUFFER_SIZE 128
+#define BUFFER_SIZE 16
 char serialBuffer[BUFFER_SIZE] = {1};
 int bufferPos = 0;
 
@@ -129,7 +115,7 @@ void handlebuffer()
 }
 
 void handleSerialBuffer() {
-  // Block until buffer is read
+    // Block until buffer is read
   if (arduinoSerial.available())
   {
     int val = arduinoSerial.read();
@@ -137,7 +123,7 @@ void handleSerialBuffer() {
 
     // Found 2 of our end bytes, and we are at buffer index 6+
     if (bufferPos > 4 && serialBuffer[bufferPos - 1] == 127 && serialBuffer[bufferPos] == 129) {
-    handlebuffer();
+      handlebuffer();
       cleanBuffer();
 
       return;
@@ -148,7 +134,7 @@ void handleSerialBuffer() {
       cleanBuffer();
     } else {
       bufferPos++;
-  }
+    }
   }
 }
 
