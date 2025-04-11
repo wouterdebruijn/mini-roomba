@@ -19,7 +19,7 @@ private:
   char buffer[BUFFER_SIZE] = {};
   int bufferPos = 0;
 
-  bool cmd_auto = true;
+  bool cmd_auto = false;
   bool cmd_brushes = false;
 
   CliffSensor **sensors;
