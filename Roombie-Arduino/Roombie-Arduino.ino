@@ -67,7 +67,7 @@ void loop()
 
   if (wemos.autoEnabled() && lockout == 0)
   {
-    if (rearLeftIR <= IR_THRESHOLD_REAR || rearRightIR <= IR_THRESHOLD_REAR)
+    if (rearLeftIR <= IR_THRESHOLD_REAR || rearRightIR <= IR_THRESHOLD_REAR && (leftIR > IR_THRESHOLD || rightIR > IR_THRESHOLD))
     {
       // Emergency stop!
       // Reverse Left
