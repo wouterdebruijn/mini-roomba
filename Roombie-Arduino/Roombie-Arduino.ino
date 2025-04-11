@@ -144,6 +144,13 @@ void loop()
     rightDrive.drive(0);
 
     eyes.setHappiness(HAPPY);
+    delay(2500);
+    eyes.setHappiness(SAD);
+    delay(2500);
+    eyes.setHappiness(ANGRY);
+    delay(2500);
+    eyes.setHappiness(SUPER_HAPPY);
+    delay(2500);
   }
 
   while (lockout > 0)

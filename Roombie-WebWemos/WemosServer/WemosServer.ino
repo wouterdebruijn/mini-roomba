@@ -19,9 +19,9 @@ const char *password = STAPSK;
 ESP8266WebServer server(80);
 EspSoftwareSerial::UART arduinoSerial;
 
-const int led = 13;
+Servo eyesServo;
 
-Eyes eyes(D5, D6, D7, 0);
+Eyes eyes(&eyesServo, D5, D6, D7, 0);
 
 Sensor sensors[4] = {
     Sensor(0), // FrontLeft
@@ -37,8 +37,9 @@ void handleRoot()
 
 void setup(void)
 {
-  pinMode(led, OUTPUT);
-  digitalWrite(led, 0);
+  eyesServo.attach(D1);
+  eyesServo.write(10);
+
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);

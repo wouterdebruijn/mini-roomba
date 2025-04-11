@@ -1,6 +1,6 @@
 #include "Eyes.h"
 
-Eyes::Eyes(uint8_t r, uint8_t g, uint8_t b, uint8_t id) : r(r), g(g), b(b), id(EYES_ID_MASK | id)
+Eyes::Eyes(Servo *servo, uint8_t r, uint8_t g, uint8_t b, uint8_t id) : servo(servo), r(r), g(g), b(b), id(EYES_ID_MASK | id)
 {
   pinMode(r, OUTPUT);
   pinMode(g, OUTPUT);
@@ -20,15 +20,19 @@ void Eyes::set(uint8_t happiness)
   if (happiness < 64) {
     // Angry
     targetR = 255;
+    servo->write(170);
   } else if (happiness < 128) {
     // Sad
     targetB = 255;
+    servo->write(60);
   } else if (happiness < 192) {
     // Happy
     targetG = 255;
+    servo->write(95);
   } else {
     // Mega Happy
     targetG = 255;
+    servo->write(30);
   }
 
   analogWrite(r, targetR);
