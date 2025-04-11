@@ -23,11 +23,11 @@ const int led = 13;
 
 Eyes eyes(D5, D6, D7, 0);
 
-Sensor sensors[] = {
-    Sensor(0x00), // FrontLeft
-    Sensor(0x01), // FrontRight
-    Sensor(0x02), // BackLeft
-    Sensor(0x03)  // BackRight
+Sensor sensors[4] = {
+    Sensor(0), // FrontLeft
+    Sensor(1), // FrontRight
+    Sensor(2), // BackLeft
+    Sensor(3)  // BackRight
 };
 
 void handleRoot()
