@@ -16,11 +16,12 @@
 Motor leftDrive(9, 10, 2);
 Motor rightDrive(5, 6, 2);
 
-CliffSensor sensorFrontLeft(A2, 15, 0);
-CliffSensor sensorFrontRight(A3, 16, 1);
+CliffSensor sensorFrontLeft(A1, 14, 0);
+CliffSensor sensorFrontRight(A0, 15, 1);
 
-CliffSensor sensorRearLeft(A0, 7, 2);
-CliffSensor sensorRearRight(A1, 14, 3);
+CliffSensor sensorRearLeft(A2, 16, 2);
+CliffSensor sensorRearRight(A3, 7, 3);
+
 
 CliffSensor *sensors[] = {
     &sensorFrontLeft,
