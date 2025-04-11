@@ -21,7 +21,7 @@ EspSoftwareSerial::UART arduinoSerial;
 
 const int led = 13;
 
-Eyes eyes(D5, D6, D7);
+Eyes eyes(D5, D6, D7, 0);
 
 Sensor sensors[] = {
     Sensor(0x00), // FrontLeft
