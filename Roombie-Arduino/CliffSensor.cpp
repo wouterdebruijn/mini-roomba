@@ -23,10 +23,10 @@ uint16_t CliffSensor::read()
     digitalWrite(led, LOW);
   }
 
-  uint16_t value = result / IR_TIMES;
+  uint16_t newValue = result / IR_TIMES;
 
-  this->changed = this->value < (value - 50) || this->value > (value + 50);
-  this->value = value;
+  this->changed = this->value < (newValue - 50) || this->value > (newValue + 50);
+  this->value = newValue;
 
   // Return avg
   return this->value;
