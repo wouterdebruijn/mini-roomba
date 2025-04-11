@@ -93,25 +93,29 @@ int bufferPos = 0;
 
 void handlebuffer()
 {
-  Serial.println("handle");
   // Search for stop start indicator
   for (int i = 0; i < BUFFER_SIZE - 2; i++)
   {
-    if (serialBuffer[i] == 128 && serialBuffer[i + 1] == 0, serialBuffer[i + 5] == 127)
+    if (serialBuffer[i] == 0 && serialBuffer[i + 4] == 127, serialBuffer[i + 5] == 129)
     {
-      i += 2;
+      // Amount of start bits to skip
+      i += 1;
 
       uint16_t value1 = serialBuffer[i + 1];
       uint8_t value2 = serialBuffer[i + 2];
 
-      for (uint8_t j = 0; j < sizeof(sensors); j++)
+      for (uint8_t j = 0; j < 4; j++)
       {
-        if (sensors[j].getId() == int(serialBuffer[i]))
+        if (sensors[j].getId() == uint8_t(serialBuffer[i]))
         {
           sensors[j].setValue(value1 << 8 | value2);
-          Serial.println("Sensor val set.");
           break;
         }
+      }
+
+      if (eyes.getId() == uint8_t(serialBuffer[i]))
+      {
+        eyes.set(value2);
       }
     }
   }
