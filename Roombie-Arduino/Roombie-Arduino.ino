@@ -69,6 +69,8 @@ void loop()
   {
     if (rearLeftIR <= IR_THRESHOLD_REAR || rearRightIR <= IR_THRESHOLD_REAR && (leftIR > IR_THRESHOLD || rightIR > IR_THRESHOLD))
     {
+      leftDrive.state(true);
+
       // Emergency stop!
       // Reverse Left
       leftDrive.drive(-64);
@@ -82,6 +84,8 @@ void loop()
     }
     else if (leftIR > IR_THRESHOLD && rightIR > IR_THRESHOLD)
     {
+      leftDrive.state(true);
+
       // Forward
       // Forward left motor
       leftDrive.drive(MAX_SPEED);
@@ -95,6 +99,8 @@ void loop()
     }
     else if (leftIR > IR_THRESHOLD && rightIR <= IR_THRESHOLD)
     {
+      leftDrive.state(true);
+
       // Right cliff, turn left
       // Reverse left motor
       leftDrive.drive(-MAX_SPEED);
@@ -108,6 +114,8 @@ void loop()
     }
     else if (leftIR <= IR_THRESHOLD && rightIR > IR_THRESHOLD)
     {
+      leftDrive.state(true);
+      
       // Left cliff, turn right
       // Forward left motor
       leftDrive.drive(MAX_SPEED);
@@ -120,13 +128,14 @@ void loop()
     }
     else if (leftIR <= IR_THRESHOLD && rightIR <= IR_THRESHOLD)
     {
+      rightDrive.state(false);
+
       // All cliff
       // Stop left motor
       leftDrive.drive(0);
 
       // Stop right motor
       rightDrive.drive(0);
-
       lockout = 20;
 
       eyes.setHappiness(ANGRY);
@@ -134,6 +143,8 @@ void loop()
   }
   else if (lockout == 0)
   {
+    rightDrive.state(false);
+
     // Auto mode disabled, wait for enable
     lockout = 20;
 
