@@ -3,6 +3,7 @@
 #include "Motor.h"
 #include "Web.h"
 #include "CliffSensor.h"
+#include <Servo.h>
 
 #define EYE_SERVO_PWM 3
 
@@ -22,6 +23,7 @@ CliffSensor sensorFrontRight(A0, 15, 1);
 CliffSensor sensorRearLeft(A2, 16, 2);
 CliffSensor sensorRearRight(A3, 7, 3);
 
+Servo servo;
 
 CliffSensor *sensors[] = {
     &sensorFrontLeft,
@@ -33,11 +35,14 @@ CliffSensor *sensors[] = {
 Web wemos(&Serial1, sensors);
 
 int lockout;
+int servoPos = 10;
 
 // the setup function runs once when you press reset or power the board
 void setup()
 {
   pinMode(BRUSHES_EEP, OUTPUT);
+  servo.attach(3);
+  servo.write(10);
 
   Serial.begin(115200);
 
