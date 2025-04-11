@@ -91,6 +91,13 @@ void setup(void)
 char serialBuffer[BUFFER_SIZE] = {1};
 int bufferPos = 0;
 
+void cleanBuffer() {
+  for (uint8_t i=0; i <BUFFER_SIZE; i++) {
+    serialBuffer[i] = 0;
+  }
+  bufferPos=0;
+}
+
 void handlebuffer()
 {
   // Search for stop start indicator
@@ -121,26 +128,32 @@ void handlebuffer()
   }
 }
 
-void loop(void)
-{
-  server.handleClient();
-
+void handleSerialBuffer() {
   // Block until buffer is read
-  if (arduinoSerial.available() > 0)
+  if (arduinoSerial.available())
   {
     int val = arduinoSerial.read();
     serialBuffer[bufferPos] = val;
-    bufferPos++;
-  }
 
-  if (bufferPos > 16)
-  {
+    // Found 2 of our end bytes, and we are at buffer index 6+
+    if (bufferPos > 4 && serialBuffer[bufferPos - 1] == 127 && serialBuffer[bufferPos] == 129) {
     handlebuffer();
+      cleanBuffer();
 
-    for (int i = 0; i < BUFFER_SIZE; i++)
-    {
-      serialBuffer[i] = 0;
+      return;
     }
-    bufferPos = 0;
+
+    // We are at the end of our buffer without finding a command, what is going on here?!
+    if (bufferPos >= BUFFER_SIZE - 1) {
+      cleanBuffer();
+    } else {
+      bufferPos++;
   }
+  }
+}
+
+void loop(void)
+{
+  server.handleClient();
+  handleSerialBuffer();
 }
