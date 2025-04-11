@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+#define SENSOR_ID_MASK 0x00
+
 class Sensor
 {
 public:

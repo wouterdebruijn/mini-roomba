@@ -1,8 +1,7 @@
 #include "Sensor.h"
 
-Sensor::Sensor(uint8_t id)
+Sensor::Sensor(uint8_t id) : id(SENSOR_ID_MASK | id)
 {
-    this->id = id;
 }
 
 uint8_t Sensor::getId()
