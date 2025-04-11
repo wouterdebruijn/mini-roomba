@@ -44,7 +44,7 @@ int servoPos = 10;
 void setup()
 {
   pinMode(BRUSHES_EEP, OUTPUT);
-  servo.attach(3);
+  // servo.attach(3);
   servo.write(10);
 
   Serial.begin(115200);
