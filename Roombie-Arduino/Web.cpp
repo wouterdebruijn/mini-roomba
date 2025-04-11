@@ -43,6 +43,13 @@ void Web::handle_command()
   }
 }
 
+void Web::sendValue(uint8_t id, uint16_t value)
+{
+  // Startbyte1, AttributeID, 16bit_buffer_part1, 16bit_buffer_part2, Endbyte1, Endbyte2
+  uint8_t buffer[] = {0, id, (value & 0xff00) >> 8, value & 0x00ff, 127, 129};
+  serial->write(buffer, 6);
+}
+
 void Web::sendMetrics()
 {
   uint8_t i = 0;
@@ -55,17 +62,7 @@ void Web::sendMetrics()
       continue;
     }
 
-    Serial.print("Sending sensor:");
-    Serial.print(sensor->getId());
-    Serial.print(", ");
-    Serial.println(sensor->getValue());
-
-    uint16_t value = sensor->getValue();
-
-    // Startbit1, Startbit2, AttributeID, 16bit_buffer_part1, 16bit_buffer_part2, Endbit
-    uint8_t buffer[] = {128, 0, sensor->getId(), (value & 0xff00) >> 8, value & 0x00ff, 127};
-
-    serial->write(buffer, 6);
+    this->sendValue(sensor->getId(), sensor->getValue());
 
     delay(10);
   }

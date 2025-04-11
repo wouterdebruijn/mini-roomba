@@ -12,6 +12,7 @@ public:
   HardwareSerial *serial;
   void handle_command();
   void sendMetrics();
+  void sendValue(uint8_t id, uint16_t value);
   bool autoEnabled();
   bool brushesEnabled();
 
