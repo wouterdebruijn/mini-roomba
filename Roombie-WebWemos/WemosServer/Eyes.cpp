@@ -1,6 +1,6 @@
 #include "Eyes.h"
 
-Eyes::Eyes(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b)
+Eyes::Eyes(uint8_t r, uint8_t g, uint8_t b, uint8_t id) : r(r), g(g), b(b), id(EYES_ID_MASK | id)
 {
   pinMode(r, OUTPUT);
   pinMode(g, OUTPUT);
@@ -13,31 +13,29 @@ Eyes::Eyes(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b)
 
 void Eyes::set(uint8_t happiness)
 {
-  uint8_t targetR, targetG, targetB;
+  uint8_t targetR = 0;
+  uint8_t targetG = 0;
+  uint8_t targetB = 0;
 
-  if (happiness <= 63)
-  {
-    // Angry: More red, less green and blue
+  if (happiness < 64) {
+    // Angry
     targetR = 255;
-    targetG = 0;
-    targetB = 0;
-  }
-  else if (happiness <= 191)
-  {
-    // Neutral (White): More equal mix of red, green, and blue
-    targetR = 0;
-    targetG = 0;
+  } else if (happiness < 128) {
+    // Sad
     targetB = 255;
-  }
-  else
-  {
-    // Happy: More green, less red and blue
-    targetR = 0;
+  } else if (happiness < 192) {
+    // Happy
     targetG = 255;
-    targetB = 0;
+  } else {
+    // Mega Happy
+    targetG = 255;
   }
 
   analogWrite(r, targetR);
   analogWrite(g, targetG);
   analogWrite(b, targetB);
+}
+
+uint8_t Eyes::getId() {
+  return this->id;
 }
