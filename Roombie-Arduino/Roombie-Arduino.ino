@@ -136,11 +136,11 @@ void loop()
     delay(10);
 
     wemos.handle_command();
-    wemos.sendMetrics();
 
     digitalWrite(BRUSHES_EEP, wemos.brushesEnabled());
 
     lockout--;
   }
 
+  wemos.sendMetrics();
 }
