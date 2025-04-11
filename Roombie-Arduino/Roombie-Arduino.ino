@@ -3,6 +3,7 @@
 #include "Motor.h"
 #include "Web.h"
 #include "CliffSensor.h"
+#include "Eyes.h"
 #include <Servo.h>
 
 #define EYE_SERVO_PWM 3
@@ -33,6 +34,8 @@ CliffSensor *sensors[] = {
     nullptr};
 
 Web wemos(&Serial1, sensors);
+
+Eyes eyes(&wemos, &servo, 0);
 
 int lockout;
 int servoPos = 10;
@@ -74,6 +77,8 @@ void loop()
       rightDrive.drive(-96);
 
       lockout = 250;
+
+      eyes.setHappiness(ANGRY);
     }
     else if (leftIR > IR_THRESHOLD && rightIR > IR_THRESHOLD)
     {
@@ -85,6 +90,8 @@ void loop()
       rightDrive.drive(MAX_SPEED);
 
       lockout = 1;
+
+      eyes.setHappiness(HAPPY);
     }
     else if (leftIR > IR_THRESHOLD && rightIR <= IR_THRESHOLD)
     {
@@ -96,6 +103,8 @@ void loop()
       rightDrive.drive(MAX_SPEED);
 
       lockout = 80;
+
+      eyes.setHappiness(SAD);
     }
     else if (leftIR <= IR_THRESHOLD && rightIR > IR_THRESHOLD)
     {
@@ -106,6 +115,8 @@ void loop()
       // Reverse right motor
       rightDrive.drive(-MAX_SPEED);
       lockout = 80;
+
+      eyes.setHappiness(SAD);
     }
     else if (leftIR <= IR_THRESHOLD && rightIR <= IR_THRESHOLD)
     {
@@ -117,6 +128,8 @@ void loop()
       rightDrive.drive(0);
 
       lockout = 20;
+
+      eyes.setHappiness(ANGRY);
     }
   }
   else if (lockout == 0)
@@ -129,6 +142,8 @@ void loop()
 
     // Stop right motor
     rightDrive.drive(0);
+
+    eyes.setHappiness(HAPPY);
   }
 
   while (lockout > 0)
