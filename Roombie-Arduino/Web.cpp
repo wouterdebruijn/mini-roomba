@@ -49,6 +49,8 @@ void Web::sendMetrics() {
     uint8_t buffer[] = {128, 0, sensor->getId(), (value & 0xff00) >> 8, value & 0x00ff, 127};
 
     serial->write(buffer, 6);
+
+    delay(10);
   }
 
   // End of string
