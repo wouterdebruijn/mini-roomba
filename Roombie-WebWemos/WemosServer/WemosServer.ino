@@ -91,10 +91,11 @@ void setup(void)
 char serialBuffer[BUFFER_SIZE] = {1};
 int bufferPos = 0;
 
-void handlebuffer() {
+void handlebuffer()
+{
   Serial.println("handle");
   // Search for stop start indicator
-  for (int i = 0; i < BUFFER_SIZE-2; i++)
+  for (int i = 0; i < BUFFER_SIZE - 2; i++)
   {
     if (serialBuffer[i] == 128 && serialBuffer[i + 1] == 0, serialBuffer[i + 5] == 127)
     {
@@ -128,10 +129,12 @@ void loop(void)
     bufferPos++;
   }
 
-  if (bufferPos > 16) {
+  if (bufferPos > 16)
+  {
     handlebuffer();
 
-    for (int i=0; i<BUFFER_SIZE; i++) {
+    for (int i = 0; i < BUFFER_SIZE; i++)
+    {
       serialBuffer[i] = 0;
     }
     bufferPos = 0;

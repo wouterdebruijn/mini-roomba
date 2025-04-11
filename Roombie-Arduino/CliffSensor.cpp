@@ -32,14 +32,17 @@ uint16_t CliffSensor::read()
   return this->value;
 }
 
-uint16_t CliffSensor::getValue() {
+uint16_t CliffSensor::getValue()
+{
   return this->value;
 }
 
-uint8_t CliffSensor::getId() {
+uint8_t CliffSensor::getId()
+{
   return this->id;
 }
 
-bool CliffSensor::hasChanged() {
+bool CliffSensor::hasChanged()
+{
   return this->changed;
 }

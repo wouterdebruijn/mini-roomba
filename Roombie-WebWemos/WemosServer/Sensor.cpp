@@ -20,12 +20,13 @@ void Sensor::setValue(uint16_t value)
     this->value = value;
 }
 
-String Sensor::asJson() {
-  String text = "{\"id\":\"";
-  text += String(this->id);
-  text += "\",\"value\":\"";
-  text += String(this->value);
-  text += "\"}";
+String Sensor::asJson()
+{
+    String text = "{\"id\":\"";
+    text += String(this->id);
+    text += "\",\"value\":\"";
+    text += String(this->value);
+    text += "\"}";
 
-  return text;
+    return text;
 }

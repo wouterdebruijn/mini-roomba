@@ -1,6 +1,7 @@
 #include "Eyes.h"
 
-Eyes::Eyes(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b) {
+Eyes::Eyes(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b)
+{
   pinMode(r, OUTPUT);
   pinMode(g, OUTPUT);
   pinMode(b, OUTPUT);
@@ -10,20 +11,26 @@ Eyes::Eyes(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b) {
   analogWrite(b, 0);
 }
 
-void Eyes::set(uint8_t happiness) {
+void Eyes::set(uint8_t happiness)
+{
   uint8_t targetR, targetG, targetB;
 
-  if (happiness <= 63) {
+  if (happiness <= 63)
+  {
     // Angry: More red, less green and blue
     targetR = 255;
     targetG = 0;
     targetB = 0;
-  } else if (happiness <= 191) {
+  }
+  else if (happiness <= 191)
+  {
     // Neutral (White): More equal mix of red, green, and blue
     targetR = 0;
     targetG = 0;
     targetB = 255;
-  } else {
+  }
+  else
+  {
     // Happy: More green, less red and blue
     targetR = 0;
     targetG = 255;
