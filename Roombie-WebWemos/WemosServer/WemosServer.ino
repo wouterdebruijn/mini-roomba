@@ -96,7 +96,7 @@ void handlebuffer() {
   // Search for stop start indicator
   for (int i = 0; i < BUFFER_SIZE-2; i++)
   {
-    if (serialBuffer[i] == 128 && serialBuffer[i + 1] == 0)
+    if (serialBuffer[i] == 128 && serialBuffer[i + 1] == 0, serialBuffer[i + 5] == 127)
     {
       i += 2;
 

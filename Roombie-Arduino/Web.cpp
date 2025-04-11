@@ -45,10 +45,9 @@ void Web::sendMetrics() {
 
     uint16_t value = sensor->getValue();
 
-    // Startbit1, Startbit2, AttributeID, 16bit_buffer_part1, 16bit_buffer_part2
-    uint8_t buffer[5] = { 128, 0, sensor->getId(), (value & 0xff00) >> 8, value & 0x00ff};
+    // Startbit1, Startbit2, AttributeID, 16bit_buffer_part1, 16bit_buffer_part2, Endbit
+    uint8_t buffer[] = {128, 0, sensor->getId(), (value & 0xff00) >> 8, value & 0x00ff, 127};
 
-    // Send uint32_t containing id and value
     serial->write(buffer, 6);
   }
 
