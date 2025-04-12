@@ -40,6 +40,12 @@ Eyes eyes(&wemos, &servo, 0);
 int lockout;
 int servoPos = 10;
 
+// Counter keeping track of drive cycles
+uint8_t driveCount = 0;
+uint8_t onGroundCount = 0;
+
+bool wasPickedUp = false;
+
 // the setup function runs once when you press reset or power the board
 void setup()
 {
@@ -56,9 +62,6 @@ void setup()
   lockout = 0;
 }
 
-// Set to true of motors need to roll out after operation (major direction switch)
-bool needsRollout = false;
-
 // the loop function runs over and over again forever
 void loop()
 {
@@ -70,56 +73,86 @@ void loop()
 
   if (wemos.autoEnabled() && lockout == 0)
   {
-    // Rollout was needed to prevent voltage/current spike
-    if (needsRollout)
+    // One of the back cliff sensors if off the table, risk of falling
+    // Atleast one of the front sensors is on the table (we aren't picked up)
+    // Only one cliff sensor can be of the table, other one should be fine, otherwise we expect that we are picked up
+    if (((rearLeftIR <= IR_THRESHOLD_REAR && rearRightIR > IR_THRESHOLD_REAR) || (rearRightIR <= IR_THRESHOLD_REAR && rearLeftIR > IR_THRESHOLD_REAR)) && (leftIR > 850 || rightIR > 850))
     {
       leftDrive.state(false);
 
-      leftDrive.drive(0);
-
-      rightDrive.drive(0);
-
-      lockout = 100;
-
-      needsRollout = false;
-    }
-
-    // One of the back cliff sensors if off the table, risk of falling
-    // Atleast one of the front sensors is on the table (we aren't picked up)
-    if ((rearLeftIR <= IR_THRESHOLD_REAR || rearRightIR <= IR_THRESHOLD_REAR) && (leftIR > IR_THRESHOLD || rightIR > IR_THRESHOLD))
-    {
-      leftDrive.state(true);
-
       // Emergency stop!
       // Reverse Left
-      leftDrive.drive(-MAX_SPEED);
+      leftDrive.drive(0);
 
       // Reverse Right
-      rightDrive.drive(-MAX_SPEED);
+      rightDrive.drive(0);
 
-      lockout = 50;
+      lockout = 500;
 
-      eyes.setHappiness(ANGRY);
-      eyes.setBuzzer(SOUND_ANGRY);
-      needsRollout = true;
+      eyes.setHappiness(SAD);
+      eyes.setBuzzer(SOUND_SAD);
     }
     else if (leftIR > IR_THRESHOLD && rightIR > IR_THRESHOLD)
     {
-      leftDrive.state(true);
+      driveCount++;
+      onGroundCount++;
 
-      // Forward
-      // Forward left motor
-      leftDrive.drive(MAX_SPEED);
+      if (wasPickedUp)
+      {
+        Serial.println(onGroundCount);
 
-      // Forward right motor
-      rightDrive.drive(MAX_SPEED);
+        // Wait for 16 cycles of proper ground
+        if (onGroundCount > 16)
+        {
+          // We were picked up and are now back, perform animation and continue
+          eyes.setHappiness(SAD);
+          eyes.blink(2);
 
-      lockout = 1;
+          eyes.setBuzzer(SOUND_SAD);
+          delay(1000);
+          eyes.blink(3);
 
-      eyes.setHappiness(HAPPY);
+          delay(2000);
+          wasPickedUp = false;
+
+          lockout = 1;
+        }
+      }
+      else
+      {
+        leftDrive.state(true);
+
+        // Forward
+        // Forward left motor
+        leftDrive.drive(MAX_SPEED);
+
+        // Forward right motor
+        rightDrive.drive(MAX_SPEED);
+
+        lockout = 1;
+
+        // Only calc random value every 255 cycles (2550ms)
+        if (driveCount == 0)
+        {
+          // idle animation, blink and maybe play happy noises.
+          uint8_t blinkHappy = random(32);
+          if (blinkHappy == 0)
+          {
+            eyes.blink(2);
+
+            if (random(16) == 0)
+            {
+              eyes.setBuzzer(SOUND_HAPPY);
+            }
+          }
+        }
+
+        eyes.setHappiness(HAPPY);
+      }
     }
     else if (leftIR > IR_THRESHOLD && rightIR <= IR_THRESHOLD)
     {
+      onGroundCount = 0;
       leftDrive.state(true);
 
       // Right cliff, turn left
@@ -135,6 +168,7 @@ void loop()
     }
     else if (leftIR <= IR_THRESHOLD && rightIR > IR_THRESHOLD)
     {
+      onGroundCount = 0;
       leftDrive.state(true);
 
       // Left cliff, turn right
@@ -147,9 +181,11 @@ void loop()
 
       eyes.setHappiness(SAD);
     }
+    // PICKED UP
     // Both front sensors are off the table, emergency back sensors did not trigger, we stop driving
     else if (leftIR <= IR_THRESHOLD && rightIR <= IR_THRESHOLD)
     {
+      onGroundCount = 0;
       rightDrive.state(false);
 
       // All cliff
@@ -158,14 +194,24 @@ void loop()
 
       // Stop right motor
       rightDrive.drive(0);
-      lockout = 20;
+      lockout = 500;
 
+      // Start small animation because of pickup
       eyes.setHappiness(ANGRY);
+      delay(200);
+      eyes.setBuzzer(SOUND_ANGRY);
+
+      eyes.blink(1);
+      delay(1000);
+      eyes.blink(3);
+
+      wasPickedUp = true;
     }
   }
   // Not AUTO mode, idle
   else if (lockout == 0)
   {
+    onGroundCount = 0;
     rightDrive.state(false);
 
     // Auto mode disabled, wait for enable
