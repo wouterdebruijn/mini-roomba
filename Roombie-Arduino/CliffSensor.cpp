@@ -11,15 +11,22 @@ CliffSensor::CliffSensor(uint8_t ir, uint8_t led, uint8_t id) : ir(ir), led(led)
 uint16_t CliffSensor::read()
 {
   uint16_t ambient = 0;
-  uint16_t result = 0;
+  uint16_t reflected = 0;
+  int result = 0;
 
   for (int i = 0; i < IR_TIMES; i++)
   {
+    // Disable IR LED and read ambient IR from sensor
     digitalWrite(led, LOW);
-    delay(5);
-    ambient = analogRead(ir);
+    delay(2);
+    ambient = 1024 - analogRead(ir);
+
+    // Enable IR LED and read reflected IR
     digitalWrite(led, HIGH);
-    result += ambient - analogRead(ir);
+    delay(2);
+
+    reflected = 1024 - analogRead(ir);
+    result += (reflected - ambient);
     digitalWrite(led, LOW);
   }
 
