@@ -43,7 +43,7 @@ void handleRoot()
 void setup(void)
 {
   eyesServo.attach(D1);
-  eyesServo.write(10);
+  eyesServo.write(95);
 
   Serial.begin(115200);
 
@@ -56,7 +56,7 @@ void setup(void)
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(500);
-    Serial.print(".");
+    eyes.blink(1);
   }
   Serial.println("");
   Serial.print("Connected to ");
@@ -119,9 +119,12 @@ void handlebuffer()
       if (eyes.getId() == id)
       {
         // Unique value for blibk trigger
-        if (value2 < 8) {
+        if (value2 < 8)
+        {
           eyes.blink(value2 - 1);
-        } else {
+        }
+        else
+        {
           eyes.set(value2);
         }
       }
@@ -130,19 +133,20 @@ void handlebuffer()
       {
         Serial.println("BUZZ");
 
-        switch (value2) {
-          case 1:
-            buzzer.happy();
-            break;
-          case 2:
-            buzzer.sad();
-            break;
-          case 3:
-            buzzer.surprise();
-            break;
-          case 4:
-            buzzer.angry();
-            break;
+        switch (value2)
+        {
+        case 1:
+          buzzer.happy();
+          break;
+        case 2:
+          buzzer.sad();
+          break;
+        case 3:
+          buzzer.surprise();
+          break;
+        case 4:
+          buzzer.angry();
+          break;
         }
       }
     }
@@ -183,7 +187,8 @@ void loop(void)
   server.handleClient();
   handleSerialBuffer();
 
-  if (buzzer.available() > 0) {
+  if (buzzer.available() > 0)
+  {
     // Handle buzzer, can delay for 100ms
     buzzer.handle();
   }
