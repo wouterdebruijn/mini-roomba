@@ -71,7 +71,8 @@ void loop()
   if (wemos.autoEnabled() && lockout == 0)
   {
     // Rollout was needed to prevent voltage/current spike
-    if (needsRollout) {
+    if (needsRollout)
+    {
       leftDrive.state(false);
 
       leftDrive.drive(0);
@@ -135,7 +136,7 @@ void loop()
     else if (leftIR <= IR_THRESHOLD && rightIR > IR_THRESHOLD)
     {
       leftDrive.state(true);
-      
+
       // Left cliff, turn right
       // Forward left motor
       leftDrive.drive(MAX_SPEED);
@@ -177,6 +178,18 @@ void loop()
     rightDrive.drive(0);
 
     eyes.setHappiness(HAPPY);
+
+    // idle animation, blink and maybe play happy noises.
+    uint8_t blinkHappy = random(64);
+    if (blinkHappy == 0)
+    {
+      eyes.blink(2);
+
+      if (random(16) == 0)
+      {
+        eyes.setBuzzer(SOUND_HAPPY);
+      }
+    }
   }
 
   // Drive function handled, handle other functions while waiting for lockout to finish
