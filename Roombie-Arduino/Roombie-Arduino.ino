@@ -46,7 +46,7 @@ uint8_t onGroundCount = 0;
 uint8_t turnCount = 0;
 
 bool wasPickedUp = false;
-bool blockedWipers = false;
+bool blockedWipers = true;
 
 // the setup function runs once when you press reset or power the board
 void setup()
@@ -87,12 +87,14 @@ void turnCountAnimation()
   wiggle();
 }
 
-void blockWipers() {
+void blockWipers()
+{
   blockedWipers = true;
   digitalWrite(BRUSHES_EEP, LOW);
 }
 
-void unlockWipers() {
+void unlockWipers()
+{
   blockedWipers = false;
   digitalWrite(BRUSHES_EEP, wemos.brushesEnabled());
 }
