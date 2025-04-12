@@ -1,25 +1,32 @@
 #include "Buzzer.h"
 
-Buzzer::Buzzer(uint8_t pin, uint8_t id) : pin(pin), id(BUZZER_ID_MASK | id) {
+Buzzer::Buzzer(uint8_t pin, uint8_t id) : pin(pin), id(BUZZER_ID_MASK | id)
+{
   pinMode(pin, OUTPUT);
 }
 
-uint8_t Buzzer::getId() {
+uint8_t Buzzer::getId()
+{
   return id;
 }
 
-uint8_t Buzzer::available() {
+uint8_t Buzzer::available()
+{
   return NOTES_L - currentNote;
 }
 
 // Handle one note and sleep
-void Buzzer::handle() {
-  if (currentNote < NOTES_L) {
+void Buzzer::handle()
+{
+  if (currentNote < NOTES_L)
+  {
     tone(pin, notes[currentNote], 250);
     delay(100);
 
     currentNote++;
-  } else {
+  }
+  else
+  {
     currentNote = 0;
   }
 }
@@ -37,11 +44,11 @@ void Buzzer::happy()
 void Buzzer::sad()
 {
   currentNote = 0;
-  notes[0] = 400;
-  notes[1] = 500;
-  notes[2] = 600;
-  notes[3] = 500;
-  notes[4] = 400;
+  notes[0] = 250;
+  notes[1] = 300;
+  notes[2] = 350;
+  notes[3] = 300;
+  notes[4] = 250;
 }
 
 void Buzzer::angry()
