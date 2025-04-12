@@ -43,8 +43,10 @@ int servoPos = 10;
 // Counter keeping track of drive cycles
 uint8_t driveCount = 0;
 uint8_t onGroundCount = 0;
+uint8_t turnCount = 0;
 
 bool wasPickedUp = false;
+bool blockedWipers = false;
 
 // the setup function runs once when you press reset or power the board
 void setup()
@@ -76,6 +78,24 @@ void wiggle()
   delay(50);
 }
 
+// Big turncount results is frustration
+void turnCountAnimation()
+{
+  eyes.setHappiness(ANGRY);
+  eyes.setBuzzer(SOUND_ANGRY);
+
+  wiggle();
+}
+
+void blockWipers() {
+  blockedWipers = true;
+  digitalWrite(BRUSHES_EEP, LOW);
+}
+
+void unlockWipers() {
+  blockedWipers = false;
+  digitalWrite(BRUSHES_EEP, wemos.brushesEnabled());
+}
 
 // the loop function runs over and over again forever
 void loop()
