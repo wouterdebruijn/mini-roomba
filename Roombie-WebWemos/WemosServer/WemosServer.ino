@@ -8,6 +8,7 @@
 #include "Secrets.h"
 #include "Sensor.h"
 #include "Eyes.h"
+#include "Buzzer.h"
 
 #define ARDUINO_RX D4
 #define ARDUINO_TX D2
@@ -23,6 +24,8 @@ Servo eyesServo;
 
 Eyes eyes(&eyesServo, D5, D6, D7, 0);
 
+Buzzer buzzer(D8, 0);
+
 Sensor sensors[4] = {
     Sensor(0), // FrontLeft
     Sensor(1), // FrontRight
@@ -32,6 +35,8 @@ Sensor sensors[4] = {
 
 void handleRoot()
 {
+  buzzer.happy();
+  eyes.blink(2);
   server.send(200, "text/html", sensors[0].asJson() + sensors[1].asJson() + sensors[2].asJson() + sensors[3].asJson());
 }
 
@@ -41,10 +46,10 @@ void setup(void)
   eyesServo.write(10);
 
   Serial.begin(115200);
+
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   Serial.println("");
-
   arduinoSerial.begin(BAUD_RATE, EspSoftwareSerial::SWSERIAL_8N1, ARDUINO_RX, ARDUINO_TX);
 
   // Wait for connection
@@ -78,11 +83,13 @@ void setup(void)
 char serialBuffer[BUFFER_SIZE] = {1};
 int bufferPos = 0;
 
-void cleanBuffer() {
-  for (uint8_t i=0; i <BUFFER_SIZE; i++) {
+void cleanBuffer()
+{
+  for (uint8_t i = 0; i < BUFFER_SIZE; i++)
+  {
     serialBuffer[i] = 0;
   }
-  bufferPos=0;
+  bufferPos = 0;
 }
 
 void handlebuffer()
@@ -98,32 +105,61 @@ void handlebuffer()
       uint16_t value1 = serialBuffer[i + 1];
       uint8_t value2 = serialBuffer[i + 2];
 
+      uint8_t id = uint8_t(serialBuffer[i]);
+
       for (uint8_t j = 0; j < 4; j++)
       {
-        if (sensors[j].getId() == uint8_t(serialBuffer[i]))
+        if (sensors[j].getId() == id)
         {
           sensors[j].setValue(value1 << 8 | value2);
           break;
         }
       }
 
-      if (eyes.getId() == uint8_t(serialBuffer[i]))
+      if (eyes.getId() == id)
       {
-        eyes.set(value2);
+        // Unique value for blibk trigger
+        if (value2 < 8) {
+          eyes.blink(value2 - 1);
+        } else {
+          eyes.set(value2);
+        }
+      }
+
+      if (buzzer.getId() == id)
+      {
+        Serial.println("BUZZ");
+
+        switch (value2) {
+          case 1:
+            buzzer.happy();
+            break;
+          case 2:
+            buzzer.sad();
+            break;
+          case 3:
+            buzzer.surprise();
+            break;
+          case 4:
+            buzzer.angry();
+            break;
+        }
       }
     }
   }
 }
 
-void handleSerialBuffer() {
-    // Block until buffer is read
+void handleSerialBuffer()
+{
+  // Block until buffer is read
   if (arduinoSerial.available())
   {
     int val = arduinoSerial.read();
     serialBuffer[bufferPos] = val;
 
     // Found 2 of our end bytes, and we are at buffer index 6+
-    if (bufferPos > 4 && serialBuffer[bufferPos - 1] == 127 && serialBuffer[bufferPos] == 129) {
+    if (bufferPos > 4 && serialBuffer[bufferPos - 1] == 127 && serialBuffer[bufferPos] == 129)
+    {
       handlebuffer();
       cleanBuffer();
 
@@ -131,9 +167,12 @@ void handleSerialBuffer() {
     }
 
     // We are at the end of our buffer without finding a command, what is going on here?!
-    if (bufferPos >= BUFFER_SIZE - 1) {
+    if (bufferPos >= BUFFER_SIZE - 1)
+    {
       cleanBuffer();
-    } else {
+    }
+    else
+    {
       bufferPos++;
     }
   }
@@ -143,4 +182,9 @@ void loop(void)
 {
   server.handleClient();
   handleSerialBuffer();
+
+  if (buzzer.available() > 0) {
+    // Handle buzzer, can delay for 100ms
+    buzzer.handle();
+  }
 }
