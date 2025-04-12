@@ -25,7 +25,6 @@ public:
   void setBuzzer(uint8_t sound);
   void blink(uint8_t count);
 
-
 private:
   Web *web;
   Servo *servo;

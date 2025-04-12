@@ -32,7 +32,8 @@ uint16_t CliffSensor::read()
 
   uint16_t newValue = 0;
 
-  if (result != 0) {
+  if (result != 0)
+  {
     newValue = result / IR_TIMES;
   }
 
