@@ -56,6 +56,9 @@ void setup()
   lockout = 0;
 }
 
+// Set to true of motors need to roll out after operation (major direction switch)
+bool needsRollout = false;
+
 // the loop function runs over and over again forever
 void loop()
 {
@@ -67,6 +70,19 @@ void loop()
 
   if (wemos.autoEnabled() && lockout == 0)
   {
+    // Rollout was needed to prevent voltage/current spike
+    if (needsRollout) {
+      leftDrive.state(false);
+
+      leftDrive.drive(0);
+
+      rightDrive.drive(0);
+
+      lockout = 100;
+
+      needsRollout = false;
+    }
+
     // One of the back cliff sensors if off the table, risk of falling
     // Atleast one of the front sensors is on the table (we aren't picked up)
     if ((rearLeftIR <= IR_THRESHOLD_REAR || rearRightIR <= IR_THRESHOLD_REAR) && (leftIR > IR_THRESHOLD || rightIR > IR_THRESHOLD))
@@ -75,14 +91,16 @@ void loop()
 
       // Emergency stop!
       // Reverse Left
-      leftDrive.drive(-64);
+      leftDrive.drive(-MAX_SPEED);
 
       // Reverse Right
-      rightDrive.drive(-128);
+      rightDrive.drive(-MAX_SPEED);
 
-      lockout = 250;
+      lockout = 50;
 
       eyes.setHappiness(ANGRY);
+      eyes.setBuzzer(SOUND_ANGRY);
+      needsRollout = true;
     }
     else if (leftIR > IR_THRESHOLD && rightIR > IR_THRESHOLD)
     {
