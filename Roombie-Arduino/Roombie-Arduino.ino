@@ -10,8 +10,8 @@
 
 #define BRUSHES_EEP 4
 
-#define IR_THRESHOLD 600
-#define IR_THRESHOLD_REAR 600
+#define IR_THRESHOLD 900
+#define IR_THRESHOLD_REAR 900
 
 #define MAX_SPEED 255
 
