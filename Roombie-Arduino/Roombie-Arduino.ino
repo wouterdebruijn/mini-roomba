@@ -215,16 +215,16 @@ void loop()
 
         lockout = 1;
 
-        // Only calc random value every 255 cycles (2550ms)
-        if (driveCount == 0)
+        // Only calc random value every 64 cycles
+        if (driveCount > 64)
         {
           // idle animation, blink and maybe play happy noises.
-          uint8_t blinkHappy = random(8);
+          uint8_t blinkHappy = random(2);
           if (blinkHappy == 0)
           {
             eyes.blink(2);
 
-            if (random(16) == 0)
+            if (random(8) == 0)
             {
               leftDrive.drive(0);
               rightDrive.drive(0);
@@ -235,6 +235,8 @@ void loop()
               eyes.setBuzzer(SOUND_HAPPY);
             }
           }
+
+          driveCount = 0;
         }
 
         eyes.setHappiness(HAPPY);
