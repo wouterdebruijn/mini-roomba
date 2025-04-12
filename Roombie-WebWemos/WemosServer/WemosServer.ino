@@ -16,8 +16,13 @@
 #define ARDUINO_TX D2
 #define BAUD_RATE 19200
 
-const char *ssid = STASSID;
-const char *password = STAPSK;
+#ifndef APSSID
+#define APSSID "Roombie"
+#define APPSK "roombie12345"
+#endif
+
+const char *ssid = APSSID;
+const char *password = APPSK;
 
 ESP8266WebServer server(80);
 EspSoftwareSerial::UART arduinoSerial;
@@ -49,15 +54,18 @@ void setup(void)
 
   Serial.begin(115200);
 
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
+  WiFi.softAP(ssid, password);
+
+  IPAddress myIP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  WiFi.softAP(ssid, password);
+
   arduinoSerial.begin(BAUD_RATE, EspSoftwareSerial::SWSERIAL_8N1, ARDUINO_RX, ARDUINO_TX);
 
-  // Wait for connection
-  while (WiFi.status() != WL_CONNECTED)
+  // Wait for AP to be ready
+  while (WiFi.softAPgetStationNum() == 0)
   {
-    delay(500);
-    eyes.blink(1);
+    delay(100);
   }
   server.on("/", handleRoot);
 
