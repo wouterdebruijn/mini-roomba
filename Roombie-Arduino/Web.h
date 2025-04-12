@@ -21,7 +21,7 @@ private:
   int bufferPos = 0;
 
   bool cmd_auto = false;
-  bool cmd_brushes = false;
+  bool cmd_brushes = true;
 
   CliffSensor **sensors;
 };
