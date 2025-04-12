@@ -12,6 +12,7 @@ public:
     Eyes(Servo *servo, uint8_t r, uint8_t g, uint8_t b, uint8_t id);
     void set(uint8_t happiness);
     uint8_t getId();
+    void blink(uint8_t count);
 
 private:
     Servo *servo;

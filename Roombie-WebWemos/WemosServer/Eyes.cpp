@@ -17,6 +17,8 @@ void Eyes::set(uint8_t happiness)
   uint8_t targetG = 0;
   uint8_t targetB = 0;
 
+  this->happiness = happiness;
+
   if (happiness < 64) {
     // Angry
     targetR = 255;
@@ -38,6 +40,22 @@ void Eyes::set(uint8_t happiness)
   analogWrite(r, targetR);
   analogWrite(g, targetG);
   analogWrite(b, targetB);
+}
+
+void Eyes::blink(uint8_t count) {
+    for (int i=0; i < count; i++) {
+      analogWrite(r, 0);
+      analogWrite(g, 0);
+      analogWrite(b, 0);
+
+      delay(100);
+
+      this->set(this->happiness);
+
+      if (count > 0) {
+        delay(50);
+      }
+    }
 }
 
 uint8_t Eyes::getId() {
