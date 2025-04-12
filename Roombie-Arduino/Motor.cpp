@@ -30,19 +30,19 @@ void Motor::update()
 
   if (speed == 0)
   {
-    digitalWrite(int1Pin, LOW);
-    digitalWrite(int2Pin, LOW);
+    analogWrite(int1Pin, 0);
+    analogWrite(int2Pin, 0);
     return;
   }
 
   if (forward)
   {
     analogWrite(int1Pin, speed);
-    digitalWrite(int2Pin, LOW);
+    analogWrite(int2Pin, 0);
   }
   else
   {
-    digitalWrite(int1Pin, LOW);
+    analogWrite(int1Pin, 0);
     analogWrite(int2Pin, speed * -1);
   }
 }
