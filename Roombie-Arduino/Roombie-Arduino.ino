@@ -111,31 +111,72 @@ void loop()
     // One of the back cliff sensors if off the table, risk of falling
     // Atleast one of the front sensors is on the table (we aren't picked up)
     // Only one cliff sensor can be of the table, other one should be fine, otherwise we expect that we are picked up
-    if (((rearLeftIR <= IR_THRESHOLD_REAR && rearRightIR > IR_THRESHOLD_REAR) || (rearRightIR <= IR_THRESHOLD_REAR && rearLeftIR > IR_THRESHOLD_REAR)) && (leftIR > 850 || rightIR > 850))
+    if (((rearLeftIR <= IR_THRESHOLD_REAR && rearRightIR > IR_THRESHOLD_REAR) || (rearRightIR <= IR_THRESHOLD_REAR && rearLeftIR > IR_THRESHOLD_REAR)) && (leftIR > IR_THRESHOLD || rightIR > IR_THRESHOLD))
     {
-      leftDrive.state(false);
+      blockWipers();
+      leftDrive.state(true);
 
       // Emergency stop!
       // Reverse Left
-      leftDrive.drive(0);
+      leftDrive.drive(-128);
 
       // Reverse Right
-      rightDrive.drive(0);
+      rightDrive.drive(-128);
 
-      lockout = 500;
+      lockout = 80;
 
       eyes.setHappiness(SAD);
       eyes.setBuzzer(SOUND_SAD);
     }
+    else if (turnCount > 8)
+    {
+      blockWipers();
+      turnCountAnimation();
+      turnCount = 0;
+    }
+    // PICKED UP
+    // All sensors all up
+    else if (leftIR <= IR_THRESHOLD && rightIR <= IR_THRESHOLD && rearLeftIR <= IR_THRESHOLD_REAR && rearRightIR <= IR_THRESHOLD_REAR)
+    {
+      blockWipers();
+      onGroundCount = 0;
+      rightDrive.state(false);
+
+      // All cliff
+      // Stop left motor
+      leftDrive.drive(0);
+
+      // Stop right motor
+      rightDrive.drive(0);
+      lockout = 500;
+
+      // Start small animation because of pickup
+      delay(200);
+
+      if (!wasPickedUp)
+      {
+        // Were not picked up before, act surprised
+        eyes.setHappiness(SAD);
+        eyes.setBuzzer(SOUND_SURPRISE);
+      }
+
+      eyes.blink(1);
+      delay(1000);
+
+      eyes.setHappiness(ANGRY);
+      eyes.setBuzzer(SOUND_ANGRY);
+      eyes.blink(3);
+
+      wasPickedUp = true;
+    }
     else if (leftIR > IR_THRESHOLD && rightIR > IR_THRESHOLD)
     {
+      unlockWipers();
       driveCount++;
       onGroundCount++;
 
       if (wasPickedUp)
       {
-        Serial.println(onGroundCount);
-
         // Wait for 16 cycles of proper ground
         if (onGroundCount > 16)
         {
@@ -147,9 +188,17 @@ void loop()
           delay(1000);
           eyes.blink(3);
 
-          delay(2000);
-          wasPickedUp = false;
+          delay(500);
 
+          leftDrive.state(true);
+          wiggle();
+
+          leftDrive.state(false);
+
+          eyes.setHappiness(HAPPY);
+          eyes.setBuzzer(SOUND_HAPPY);
+
+          wasPickedUp = false;
           lockout = 1;
         }
       }
@@ -170,13 +219,19 @@ void loop()
         if (driveCount == 0)
         {
           // idle animation, blink and maybe play happy noises.
-          uint8_t blinkHappy = random(32);
+          uint8_t blinkHappy = random(8);
           if (blinkHappy == 0)
           {
             eyes.blink(2);
 
             if (random(16) == 0)
             {
+              leftDrive.drive(0);
+              rightDrive.drive(0);
+
+              delay(200);
+
+              wiggle();
               eyes.setBuzzer(SOUND_HAPPY);
             }
           }
@@ -187,6 +242,7 @@ void loop()
     }
     else if (leftIR > IR_THRESHOLD && rightIR <= IR_THRESHOLD)
     {
+      unlockWipers();
       onGroundCount = 0;
       leftDrive.state(true);
 
@@ -196,13 +252,13 @@ void loop()
 
       // Forward right motor
       rightDrive.drive(MAX_SPEED);
-
       lockout = 80;
 
-      eyes.setHappiness(SAD);
+      turnCount++;
     }
     else if (leftIR <= IR_THRESHOLD && rightIR > IR_THRESHOLD)
     {
+      unlockWipers();
       onGroundCount = 0;
       leftDrive.state(true);
 
@@ -214,33 +270,20 @@ void loop()
       rightDrive.drive(-MAX_SPEED);
       lockout = 80;
 
-      eyes.setHappiness(SAD);
+      turnCount++;
     }
-    // PICKED UP
-    // Both front sensors are off the table, emergency back sensors did not trigger, we stop driving
     else if (leftIR <= IR_THRESHOLD && rightIR <= IR_THRESHOLD)
     {
-      onGroundCount = 0;
-      rightDrive.state(false);
-
+      blockWipers();
+      leftDrive.state(true);
       // All cliff
       // Stop left motor
-      leftDrive.drive(0);
+      leftDrive.drive(-MAX_SPEED);
 
       // Stop right motor
-      rightDrive.drive(0);
-      lockout = 500;
+      rightDrive.drive(-128);
 
-      // Start small animation because of pickup
-      eyes.setHappiness(ANGRY);
-      delay(200);
-      eyes.setBuzzer(SOUND_ANGRY);
-
-      eyes.blink(1);
-      delay(1000);
-      eyes.blink(3);
-
-      wasPickedUp = true;
+      lockout = 80;
     }
   }
   // Not AUTO mode, idle
@@ -280,7 +323,7 @@ void loop()
 
     wemos.handle_command();
 
-    digitalWrite(BRUSHES_EEP, wemos.brushesEnabled());
+    digitalWrite(BRUSHES_EEP, wemos.brushesEnabled() && !blockedWipers);
 
     lockout--;
   }
