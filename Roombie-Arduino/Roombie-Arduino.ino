@@ -67,7 +67,9 @@ void loop()
 
   if (wemos.autoEnabled() && lockout == 0)
   {
-    if (rearLeftIR <= IR_THRESHOLD_REAR || rearRightIR <= IR_THRESHOLD_REAR && (leftIR > IR_THRESHOLD || rightIR > IR_THRESHOLD))
+    // One of the back cliff sensors if off the table, risk of falling
+    // Atleast one of the front sensors is on the table (we aren't picked up)
+    if ((rearLeftIR <= IR_THRESHOLD_REAR || rearRightIR <= IR_THRESHOLD_REAR) && (leftIR > IR_THRESHOLD || rightIR > IR_THRESHOLD))
     {
       leftDrive.state(true);
 
@@ -76,7 +78,7 @@ void loop()
       leftDrive.drive(-64);
 
       // Reverse Right
-      rightDrive.drive(-96);
+      rightDrive.drive(-128);
 
       lockout = 250;
 
@@ -126,6 +128,7 @@ void loop()
 
       eyes.setHappiness(SAD);
     }
+    // Both front sensors are off the table, emergency back sensors did not trigger, we stop driving
     else if (leftIR <= IR_THRESHOLD && rightIR <= IR_THRESHOLD)
     {
       rightDrive.state(false);
@@ -141,6 +144,7 @@ void loop()
       eyes.setHappiness(ANGRY);
     }
   }
+  // Not AUTO mode, idle
   else if (lockout == 0)
   {
     rightDrive.state(false);
@@ -157,6 +161,7 @@ void loop()
     eyes.setHappiness(HAPPY);
   }
 
+  // Drive function handled, handle other functions while waiting for lockout to finish
   while (lockout > 0)
   {
     delay(10);
@@ -168,5 +173,6 @@ void loop()
     lockout--;
   }
 
+  // Send sensor metrics to Wemos
   wemos.sendMetrics();
 }
