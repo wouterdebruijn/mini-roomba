@@ -10,6 +10,8 @@
 #include "Eyes.h"
 #include "Buzzer.h"
 
+#include "Index.h"
+
 #define ARDUINO_RX D4
 #define ARDUINO_TX D2
 #define BAUD_RATE 19200
@@ -37,7 +39,7 @@ void handleRoot()
 {
   buzzer.happy();
   eyes.blink(2);
-  server.send(200, "text/html", sensors[0].asJson() + sensors[1].asJson() + sensors[2].asJson() + sensors[3].asJson());
+  server.send(200, "text/html", ROOT_HTML);
 }
 
 void setup(void)
@@ -49,7 +51,6 @@ void setup(void)
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-  Serial.println("");
   arduinoSerial.begin(BAUD_RATE, EspSoftwareSerial::SWSERIAL_8N1, ARDUINO_RX, ARDUINO_TX);
 
   // Wait for connection
@@ -58,23 +59,32 @@ void setup(void)
     delay(500);
     eyes.blink(1);
   }
-  Serial.println("");
-  Serial.print("Connected to ");
-  Serial.println(ssid);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-
   server.on("/", handleRoot);
 
-  server.on("/auto", []()
+  server.on("/api/command", HTTP_POST, []()
             {
-    arduinoSerial.print("c:2");
-    server.send(200, "text/plain", "this works as well"); });
+    if (server.hasArg("plain")) {
+      String command = server.arg("plain");
+      arduinoSerial.print(command);
+    }
 
-  server.on("/wiper", []()
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.send(200, "text/plain", "Command received"); });
+
+  server.on("/api/sensors", HTTP_GET, []()
             {
-    arduinoSerial.print("c:3");
-    server.send(200, "text/plain", "this works as well"); });
+    String json = "[";
+    for (int i = 0; i < 4; i++)
+    {
+      json += sensors[i].asJson();
+      if (i < 3)
+      {
+        json += ",";
+      }
+    }
+    json += "]";
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.send(200, "application/json", json); });
 
   server.begin();
 }
@@ -131,8 +141,6 @@ void handlebuffer()
 
       if (buzzer.getId() == id)
       {
-        Serial.println("BUZZ");
-
         switch (value2)
         {
         case 1:
