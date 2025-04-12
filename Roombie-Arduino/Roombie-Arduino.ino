@@ -62,6 +62,21 @@ void setup()
   lockout = 0;
 }
 
+void wiggle()
+{
+  leftDrive.drive(-MAX_SPEED);
+  rightDrive.drive(MAX_SPEED);
+  leftDrive.state(true);
+  delay(100);
+  leftDrive.drive(MAX_SPEED);
+  rightDrive.drive(-MAX_SPEED);
+  delay(100);
+  leftDrive.drive(-MAX_SPEED);
+  rightDrive.drive(MAX_SPEED);
+  delay(50);
+}
+
+
 // the loop function runs over and over again forever
 void loop()
 {
